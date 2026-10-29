@@ -1,0 +1,45 @@
+# Plan morning-digest § 3 and § 4: the reviewer's preview on GitHub Pages.
+# Deployed from a workflow artifact, never from a branch: a preview in git would keep the lane
+# marker forever (ADR 0003). Run with marker: false to upload the same page over the same link
+# without it.
+name: preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      marker:
+        description: Show the lane marker (repo variable LANE_MARKER) in the banner
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: corepack enable pnpm && pnpm install --frozen-lockfile
+      - run: pnpm exec tsx scripts/save-page.ts /digest/2026-10-28 var/preview/index.html
+        env:
+          LANE_MARKER: ${{ inputs.marker && vars.LANE_MARKER || '' }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: var/preview
+          retention-days: 1
+      - id: deploy
+        uses: actions/deploy-pages@v4
