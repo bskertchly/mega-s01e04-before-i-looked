@@ -30,6 +30,24 @@ Read first: `docs/vision.md`, `docs/styleguide.md`. Decisions: `docs/adr/`.
 5. An issue is closed only when its "Done when" holds. If it can't hold yet, leave it open and
    say what it waits on.
 
+## Issue shape
+
+Every issue split from a plan carries this, in this order:
+
+```
+Source: plan.md § <n>
+
+## Scope
+## Done when
+## Blocked by
+```
+
+- First line exactly `Source: plan.md § <n>`, with the plan's own section number (`§ 1`, `§ 2a`).
+- Label `plan:<plan>`, the `plan:` value in `plan.md`'s frontmatter (e.g. `plan:morning-digest`).
+- A step that waits on someone outside the lane (a reviewer, another team): its "Done when" names
+  their answer ("the reviewer has reviewed it"), never our own send. It stays open until that
+  answer is in, and every step after it (clean-up) is blocked by it.
+
 ## Skills
 
 Shared skills live in `.agents/skills/`, one folder each, `SKILL.md` inside. That folder is the
